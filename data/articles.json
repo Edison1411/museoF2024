@@ -1,0 +1,151 @@
+
+[
+  {
+    "id": "1",
+    "title": "Artículo 1",
+    "description": "vaso inca",
+    "image": "/images/articulo1/articulo1.jpg",
+    "codigoColeccionista": "C001",
+    "codigoSipce": "SIP001",
+    "codigoUbicacion": "UB001",
+    "filiacionCultural": "Cultura X",
+    "dimensiones": "10x20x30 cm",
+    "details": "Descripción detallada del artículo 1",
+    "relatedImages": [
+      "/images/articulo1/articulo1.jpg",
+      "/images/articulo1/articulo1.1.jpg",
+      "/images/articulo1/articulo1.2.jpg",
+      "/images/articulo1/articulo1.3.jpg"
+    ]
+  },
+  {
+    "id": "2",
+    "title": "Artículo 2",
+    "description": "vaso olmeca",
+    "image": "/images/articulo2.jpg",
+    "codigoColeccionista": "C001",
+    "codigoSipce": "SIP001",
+    "codigoUbicacion": "UB001",
+    "filiacionCultural": "Cultura X",
+    "dimensiones": "10x20x30 cm",
+    "details": "Descripción detallada del artículo 1",
+    "relatedImages": [
+      "/images/articulo1/articulo1.jpg",
+      "/images/articulo1/articulo1.1.jpg",
+      "/images/articulo1/articulo1.2.jpg",
+      "/images/articulo1/articulo1.3.jpg"
+    ]
+  },
+  
+  {
+    "id": "3",
+    "title": "Artículo 3",
+    "description": "Descripción breve del artículo 1",
+    "image": "/images/articulo1.jpg",
+    "codigoColeccionista": "C001",
+    "codigoSipce": "SIP001",
+    "codigoUbicacion": "UB001",
+    "filiacionCultural": "Cultura X",
+    "dimensiones": "10x20x30 cm",
+    "details": "Descripción detallada del artículo 1",
+    "relatedImages": [
+      "/images/articulo1/articulo1.jpg",
+      "/images/articulo1/articulo1.1.jpg",
+      "/images/articulo1/articulo1.2.jpg",
+      "/images/articulo1/articulo1.3.jpg"
+    ]
+  },
+  {
+    "id": "4",
+    "title": "Artículo 4",
+    "description": "Descripción breve del artículo 2",
+    "image": "/images/articulo2.jpg",
+    "codigoColeccionista": "C001",
+    "codigoSipce": "SIP001",
+    "codigoUbicacion": "UB001",
+    "filiacionCultural": "Cultura X",
+    "dimensiones": "10x20x30 cm",
+    "details": "Descripción detallada del artículo 1",
+    "relatedImages": [
+      "/images/articulo1/articulo1.jpg",
+      "/images/articulo1/articulo1.1.jpg",
+      "/images/articulo1/articulo1.2.jpg",
+      "/images/articulo1/articulo1.3.jpg"
+    ]
+  },
+  
+  {
+    "id": "5",
+    "title": "Artículo 5",
+    "description": "Descripción breve del artículo 1",
+    "image": "/images/articulo1.jpg",
+    "codigoColeccionista": "C001",
+    "codigoSipce": "SIP001",
+    "codigoUbicacion": "UB001",
+    "filiacionCultural": "Cultura X",
+    "dimensiones": "10x20x30 cm",
+    "details": "Descripción detallada del artículo 1",
+    "relatedImages": [
+      "/images/articulo1/articulo1.jpg",
+      "/images/articulo1/articulo1.1.jpg",
+      "/images/articulo1/articulo1.2.jpg",
+      "/images/articulo1/articulo1.3.jpg"
+    ]
+  },
+  {
+    "id": "6",
+    "title": "Artículo 6",
+    "description": "Descripción breve del artículo 2",
+    "image": "/images/articulo2.jpg",
+    "codigoColeccionista": "C001",
+    "codigoSipce": "SIP001",
+    "codigoUbicacion": "UB001",
+    "filiacionCultural": "Cultura X",
+    "dimensiones": "10x20x30 cm",
+    "details": "Descripción detallada del artículo 1",
+    "relatedImages": [
+      "/images/articulo1/articulo1.jpg",
+      "/images/articulo1/articulo1.1.jpg",
+      "/images/articulo1/articulo1.2.jpg",
+      "/images/articulo1/articulo1.3.jpg"
+    ]
+  },
+  
+  {
+    "id": "7",
+    "title": "Artículo 7",
+    "description": "Descripción breve del artículo 1",
+    "image": "/images/articulo1.jpg",
+    "codigoColeccionista": "C001",
+    "codigoSipce": "SIP001",
+    "codigoUbicacion": "UB001",
+    "filiacionCultural": "Cultura X",
+    "dimensiones": "10x20x30 cm",
+    "details": "Descripción detallada del artículo 1",
+    "relatedImages": [
+      "/images/articulo1/articulo1.jpg",
+      "/images/articulo1/articulo1.1.jpg",
+      "/images/articulo1/articulo1.2.jpg",
+      "/images/articulo1/articulo1.3.jpg"
+    ]
+  },
+  {
+    "id": "8",
+    "title": "Artículo 8",
+    "description": "Descripción breve del artículo 2",
+    "image": "/images/articulo2.jpg",
+    "codigoColeccionista": "C001",
+    "codigoSipce": "SIP001",
+    "codigoUbicacion": "UB001",
+    "filiacionCultural": "Cultura X",
+    "dimensiones": "10x20x30 cm",
+    "details": "Descripción detallada del artículo 1",
+    "relatedImages": [
+      "/images/articulo1/articulo1.jpg",
+      "/images/articulo1/articulo1.1.jpg",
+      "/images/articulo1/articulo1.2.jpg",
+      "/images/articulo1/articulo1.3.jpg"
+    ]
+  }
+  
+]
