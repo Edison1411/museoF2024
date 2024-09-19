@@ -1,10 +1,10 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import Login from 'd:/Documentos Wind/Archivos de usuario/OneDrive/Escritorio/museum_project/nextly-template-main_v2/pages/login.js';
-import { useAuth } from 'd:/Documentos Wind/Archivos de usuario/OneDrive/Escritorio/museum_project/nextly-template-main_v2/hooks/useAuth';
-import { useRouter } from 'next/router';
+import Login from 'pages/login'; // Cambiado a ruta interna
+import { useAuth } from 'hooks/useAuth'; // Cambiado a ruta interna
+import { useRouter } from 'next/router'; // Mantiene la ruta de Next.js
 
-jest.mock('d:/Documentos Wind/Archivos de usuario/OneDrive/Escritorio/museum_project/nextly-template-main_v2/hooks/useAuth');
-jest.mock('next/router');
+jest.mock('hooks/useAuth'); // Cambiado a ruta interna
+jest.mock('next/router'); // Mantiene la ruta de Next.js
 
 describe('Login Component', () => {
   const mockLogin = jest.fn();

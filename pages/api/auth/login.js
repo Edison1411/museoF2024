@@ -1,3 +1,49 @@
+/**
+ * @openapi
+ * /api/auth/login:
+ *   post:
+ *     summary: Inicia sesión de un usuario
+ *     description: Permite a un usuario autenticarse con email y contraseña.
+ *     tags:
+ *       - Auth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: admin@example.com
+ *               password:
+ *                 type: string
+ *                 example: your_secure_password
+ *     responses:
+ *       200:
+ *         description: Autenticación exitosa
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: string
+ *                   example: 1234567890abcdef
+ *                 name:
+ *                   type: string
+ *                   example: Admin
+ *                 email:
+ *                   type: string
+ *                   example: admin@example.com
+ *                 role:
+ *                   type: string
+ *                   example: admin
+ *       401:
+ *         description: Credenciales inválidas
+ *       500:
+ *         description: Error del servidor
+ */
 import { connectToDatabase } from '../../../lib/mongodb';
 import User from '../../../models/User';
 import rateLimit from 'express-rate-limit';
@@ -11,7 +57,6 @@ const loginLimiter = rateLimit({
 });
 
 export default async function handler(req, res) {
-  // Apply rate limiter
   loginLimiter(req, res, async () => {
     if (req.method !== 'POST') {
       return res.status(405).end(`Method ${req.method} Not Allowed`);
