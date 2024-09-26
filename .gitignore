@@ -34,3 +34,6 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# Ignore the main .env file
+.env

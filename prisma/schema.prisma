@@ -1,16 +1,42 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id           Int      @id @default(autoincrement())
-  username     String   @unique
-  passwordHash String
-  role        String
+generator client {
+  provider = "prisma-client-js"
 }
 
+model User {
+  id        String    @id @default(uuid()) @db.Uuid // Asegúrate de que el ID sea de tipo UUID
+  username  String    @unique
+  password  String
+  role      Role      @default(ADMIN)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  auditLogs AuditLog[]
+}
+
+model CatalogueItem {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  userId    String?  @db.Uuid // Asegúrate de que el tipo sea UUID, como el campo `id` de `User`
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  status    String
+  details   String?
+  createdAt DateTime @default(now())
+}
+
+enum Role {
+  ADMIN
+  ADMIN_READ
+}

@@ -1,85 +1,74 @@
-/**
- * @openapi
- * /api/auth/login:
- *   post:
- *     summary: Inicia sesión de un usuario
- *     description: Permite a un usuario autenticarse con email y contraseña.
- *     tags:
- *       - Auth
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email:
- *                 type: string
- *                 example: admin@example.com
- *               password:
- *                 type: string
- *                 example: your_secure_password
- *     responses:
- *       200:
- *         description: Autenticación exitosa
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: string
- *                   example: 1234567890abcdef
- *                 name:
- *                   type: string
- *                   example: Admin
- *                 email:
- *                   type: string
- *                   example: admin@example.com
- *                 role:
- *                   type: string
- *                   example: admin
- *       401:
- *         description: Credenciales inválidas
- *       500:
- *         description: Error del servidor
- */
-import { connectToDatabase } from '../../../lib/mongodb';
-import User from '../../../models/User';
+// pages/api/auth/login.js
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt'; // Para comparar contraseñas
 import rateLimit from 'express-rate-limit';
 
-// Rate limiter configuration 
+const prisma = new PrismaClient();
+
+// Limitar intentos de login
 const loginLimiter = rateLimit({
   windowMs: 10 * 1000,
-  max: 2, 
-  keyGenerator: (req) => req.body.email, 
+  max: 5, // 5 intentos cada 10 segundos
+  keyGenerator: (req) => req.body.username,
   message: 'Too many login attempts. Please try again after 10 seconds.',
 });
 
 export default async function handler(req, res) {
+  // Asegúrate de que limitador de peticiones esté funcionando y no esté bloqueando sin enviar respuesta
   loginLimiter(req, res, async () => {
     if (req.method !== 'POST') {
-      return res.status(405).end(`Method ${req.method} Not Allowed`);
+      // Siempre debe haber una respuesta en caso de que el método HTTP no sea permitido
+      return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
     }
 
-    const { email, password } = req.body;
+    const { username, password } = req.body;
 
     try {
-      await connectToDatabase();
-      const user = await User.findOne({ email });
+      // Buscar al usuario en la base de datos
+      const user = await prisma.user.findUnique({
+        where: { username },
+      });
 
-      if (!user || !(await user.comparePassword(password))) {
-        return res.status(401).json({ message: 'Invalid email or password' });
+      // Verifica si el usuario existe y si la contraseña es correcta
+      if (!user || !(await bcrypt.compare(password, user.password))) {
+        // Si el login falla, registrar el intento
+        await prisma.auditLog.create({
+          data: {
+            userId: user?.id || null,
+            action: 'LOGIN_ATTEMPT',
+            status: 'FAILED',
+            details: 'Invalid username or password',
+          },
+        });
+
+        // Devolver respuesta 401 para indicar que las credenciales son incorrectas
+        return res.status(401).json({ message: 'Invalid username or password' });
       }
 
-      res.status(200).json({
-        id: user._id,
-        name: user.name,
-        email: user.email,
+      // Si el login es exitoso, registrar el intento exitoso
+      await prisma.auditLog.create({
+        data: {
+          userId: user.id,
+          action: 'LOGIN_ATTEMPT',
+          status: 'SUCCESS',
+          details: 'User successfully logged in',
+        },
+      });
+
+      // Enviar respuesta con los datos del usuario
+      return res.status(200).json({
+        id: user.id,
+        username: user.username,
         role: user.role,
       });
     } catch (error) {
-      res.status(500).json({ message: 'Error logging in' });
+      console.error('Login error:', error);
+
+      // Enviar respuesta con el error si ocurre algún fallo en el try-catch
+      return res.status(500).json({ message: 'Internal Server Error' });
+    } finally {
+      // Asegurarse de cerrar la conexión a la base de datos después de cada solicitud
+      await prisma.$disconnect();
     }
   });
 }

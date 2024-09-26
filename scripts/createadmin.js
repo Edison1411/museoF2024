@@ -1,28 +1,37 @@
-// scripts/createAdmin.js
-async function createAdminUser() {
+// scripts/createAdmins.js
+import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
+
+const prisma = new PrismaClient();
+
+async function createAdmins() {
+  const saltRounds = 10;
+
   try {
-    console.log("Attempting to create admin user...");
-    const res = await fetch('http://localhost:3000/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: 'Admin User',
-        email: 'admin@example.com',
-        password: 'your_secure_password',
+    // Crear Admin 1
+    const admin1 = await prisma.user.create({
+      data: {
+        username: 'admin',
+        password: await bcrypt.hash('password123', saltRounds), // Asegúrate de cambiar la contraseña
         role: 'ADMIN',
-      }),
+      },
     });
 
-    if (!res.ok) {
-      const error = await res.json();
-      throw new Error(`HTTP error! status: ${res.status}, message: ${error.message}, details: ${error.details}`);
-    }
+    // Crear Admin 2 con permisos restringidos
+    const admin2 = await prisma.user.create({
+      data: {
+        username: 'admin2',
+        password: await bcrypt.hash('password456', saltRounds), // Asegúrate de cambiar la contraseña
+        role: 'ADMIN_READ',
+      },
+    });
 
-    const data = await res.json();
-    console.log("Admin user created successfully:", data);
+    console.log('Usuarios creados:', { admin1, admin2 });
   } catch (error) {
-    console.error("Error creating admin user:", error.message);
+    console.error('Error creando usuarios:', error);
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
-createAdminUser();
+createAdmins();

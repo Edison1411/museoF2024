@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import Head from "next/head";
 import Navbar from "../components/navbar";
-import PopupWidget from "../components/popupWidget";
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -12,28 +11,20 @@ const Catalogo = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [darkMode, setDarkMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [totalItems, setTotalItems] = useState(0); // Nuevo estado para el total de artículos
 
   useEffect(() => {
     const fetchArticles = async () => {
-      const response = await fetch('/api/articles');
-      const data = await response.json();
+      const response = await fetch(`/api/catalogue?page=${currentPage}&search=${searchTerm}`);
+      const { data, total } = await response.json(); // Suponemos que tu API devuelve los datos y el número total de artículos
       setArticles(data);
+      setTotalItems(total); // Establecer el total de artículos desde la respuesta de la API
     };
-    
+
     fetchArticles();
-  }, []);
+  }, [currentPage, searchTerm]);
 
-  const filteredArticles = articles.filter(article => {
-    return article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           article.description.toLowerCase().includes(searchTerm.toLowerCase());
-  });
-
-  const totalPages = Math.ceil(filteredArticles.length / ITEMS_PER_PAGE);
-
-  const currentArticles = filteredArticles.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
 
   const handleNextPage = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
@@ -45,7 +36,7 @@ const Catalogo = () => {
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
-    setCurrentPage(1); // Resetear la página actual cuando se cambia el término de búsqueda
+    setCurrentPage(1); // Resetear a la primera página cuando se cambia el término de búsqueda
   };
 
   return (
@@ -73,38 +64,42 @@ const Catalogo = () => {
         </div>
 
         <div className="flex flex-wrap justify-center">
-          {currentArticles.map(article => (
-            <div key={article._id} className={`max-w-sm rounded overflow-hidden shadow-lg m-4 border ${darkMode ? 'border-gray-600' : 'border-cyan-500'}`}>
-              {/* Contenido del artículo */}
-              <Link href={`/articles/${article._id}`}>
-                <div className="cursor-pointer bg-blue-200 rounded">
-                  <Image
-                    src={article.image}
-                    alt={article.title}
-                    width={500}
-                    height={300}
-                    layout="responsive"
-                  />
-                  <div className="px-6 py-4">
-                    <div className="font-bold text-xl mb-2 text-black">{article.title}</div>
-                    <p className="text-base text-black">{article.description}</p>
+          {articles.length === 0 ? (
+            <p>No articles found.</p>
+          ) : (
+            articles.map(article => (
+              <div key={article.id} className={`max-w-sm rounded overflow-hidden shadow-lg m-4 border ${darkMode ? 'border-gray-600' : 'border-cyan-500'}`}>
+                {/* Contenido del artículo */}
+                <Link href={`/articles/${article.id}`}>
+                  <div className="cursor-pointer bg-blue-200 rounded">
+                    <Image
+                      src={article.imageUrl || '/placeholder.jpg'} // Cambiado a imageUrl de acuerdo con el modelo de Prisma
+                      alt={article.title}
+                      width={500}
+                      height={300}
+                      layout="responsive"
+                    />
+                    <div className="px-6 py-4">
+                      <div className="font-bold text-xl mb-2 text-black">{article.title}</div>
+                      <p className="text-base text-black">{article.description || 'No description available'}</p>
+                    </div>
+                  </div>
+                </Link>
+                {/* Sección de información adicional */}
+                <div className="px-6 py-4 bg-blue-200 rounded text-black">
+                  <div className="text-sm">
+                    <p><strong>IDENTIFICACIÓN</strong></p>
+                    <p>Código de coleccionista: {article.codigoColeccionista || 'N/A'}</p>
+                    <p>Código Sipce: {article.codigoSipce || 'N/A'}</p>
+                    <p>Código de ubicación: {article.codigoUbicacion || 'N/A'}</p>
+                    <p>FILIACIÓN CULTURAL: {article.filiacionCultural || 'N/A'}</p>
+                    <p><strong>DIMENSIONES</strong></p>
+                    <p>{article.dimensiones || 'N/A'}</p>
                   </div>
                 </div>
-              </Link>
-              {/* Sección de información adicional */}
-              <div className="px-6 py-4 bg-blue-200 rounded text-black">
-                <div className="text-sm">
-                  <p><strong>IDENTIFICACIÓN</strong></p>
-                  <p>Código de coleccionista: {article.codigoColeccionista}</p>
-                  <p>Código Sipce: {article.codigoSipce}</p>
-                  <p>Código de ubicación: {article.codigoUbicacion}</p>
-                  <p>FILIACIÓN CULTURAL: {article.filiacionCultural}</p>
-                  <p><strong>DIMENSIONES</strong></p>
-                  <p>{article.dimensiones}</p>
-                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
         
         {/* Botones de paginación */}
@@ -125,8 +120,6 @@ const Catalogo = () => {
           </button>
         </div>
       </main>
-      
-      
     </>
   );
 }

@@ -1,3 +1,4 @@
+// pages/login.js
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
@@ -5,7 +6,7 @@ import Navbar from '../components/navbar';
 import Footer from '../components/footer';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState(''); 
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -18,18 +19,17 @@ export default function Login() {
     setError('');
     setLoading(true);
 
-    // Basic client-side validation
-    if (!email || !password) {
-      setError('Please enter both email and password.');
+    if (!username || !password) {
+      setError('Please enter both username and password.');
       setLoading(false);
       return;
     }
 
     try {
-      await login(email, password);
-      router.push('/admin');
+      await login(username, password);
+      router.push('/admin'); // Redirige al dashboard de administrador
     } catch (error) {
-      setError('Failed to log in. Please check your email and password.');
+      setError('Failed to log in. Please check your username and password.');
     } finally {
       setLoading(false);
     }
@@ -44,12 +44,12 @@ export default function Login() {
           {error && <p className="error" role="alert">{error}</p>}
           <form onSubmit={handleSubmit}>
             <div>
-              <label htmlFor="email">Email:</label>
+              <label htmlFor="username">Username:</label>
               <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
                 aria-required="true"
               />
@@ -81,30 +81,56 @@ export default function Login() {
         </div>
        </div>
        <Footer/>
+
+      {/* Estilos */}
       <style jsx>{`
         .login-page {
           display: flex;
           justify-content: center;
           align-items: center;
           height: 100vh;
-          background-color: #00000;
+          background-color: #f0f4f8; /* Fondo suave */
         }
         .login-box {
-          background: steelblue;
-          padding: 6rem;
-          border-radius: 8px;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-          animation: fadeIn 1s ease-in-out;
+          background-color: #ffffff;
+          padding: 3rem;
+          border-radius: 12px;
+          box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); /* Sombra suave */
+          width: 100%;
+          max-width: 400px;
+          text-align: center;
         }
         h1 {
-          margin-bottom: 2rem;
+          font-size: 2rem;
+          margin-bottom: 1.5rem;
+          color: #333333;
         }
         .error {
           color: red;
-          margin-bottom: 2rem;
+          margin-bottom: 1rem;
+          font-weight: bold;
         }
         form div {
-          margin-bottom: 2rem;
+          margin-bottom: 1.5rem;
+        }
+        label {
+          display: block;
+          font-size: 1rem;
+          font-weight: bold;
+          color: #333333;
+          margin-bottom: 0.5rem;
+          text-align: left;
+        }
+        input {
+          width: 100%;
+          padding: 0.75rem;
+          border: 1px solid #cccccc;
+          border-radius: 8px;
+          font-size: 1rem;
+        }
+        input:focus {
+          outline: none;
+          border-color: #2196f3; /* Color de foco */
         }
         .password-container {
           display: flex;
@@ -120,44 +146,32 @@ export default function Login() {
         }
         .toggle-password-button {
           background: none;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-          color: #000000;
+          border: 1px solid #cccccc;
+          border-radius: 8px;
+          color: #333333;
           cursor: pointer;
-          padding: 0.6rem;
-          font-size: 0.9rem;
-        }
-        input {
-          width: 100%;
-          padding: 0.6rem;
-          border: 1px solid #ccc;
-          border-radius: 4px;
+          padding: 0.5rem;
+          font-size: 0.875rem;
         }
         button[type="submit"] {
           width: 100%;
           padding: 0.75rem;
-          border:  1px solid #ccc ;
+          border: none;
           border-radius: 8px;
           background-color: #2196f3;
-          color: black;
+          color: #ffffff;
           font-size: 1rem;
+          font-weight: bold;
           cursor: pointer;
+          transition: background-color 0.3s ease;
+        }
+        button[type="submit"]:hover {
+          background-color: #1e88e5; /* Color de hover */
         }
         button[type="submit"]:disabled {
-          background-color: #ccc;
-        }
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          background-color: #cccccc;
         }
       `}</style>
     </>
   );
 }
-
