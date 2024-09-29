@@ -49,7 +49,6 @@ const About = () => {
           </Swiper>
         </div>
       </Container>
- 
     </>
   );
 }
