@@ -1,4 +1,4 @@
-// listUsers.js
+// listUsers from our supabase storage
 const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
