@@ -37,4 +37,4 @@ yarn-error.log*
 .vercel
 
 # Ignore the main .env file
-.env
+/.env
