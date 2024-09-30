@@ -11,14 +11,14 @@ const Catalogo = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [darkMode, setDarkMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [totalItems, setTotalItems] = useState(0); // Nuevo estado para el total de artículos
+  const [totalItems, setTotalItems] = useState(0); 
 
   useEffect(() => {
     const fetchArticles = async () => {
       const response = await fetch(`/api/catalogue?page=${currentPage}&search=${searchTerm}`);
-      const { data, total } = await response.json(); // Suponemos que tu API devuelve los datos y el número total de artículos
+      const { data, total } = await response.json(); 
       setArticles(data);
-      setTotalItems(total); // Establecer el total de artículos desde la respuesta de la API
+      setTotalItems(total);
     };
 
     fetchArticles();
