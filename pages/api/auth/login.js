@@ -1,74 +1,68 @@
-// pages/api/auth/login.js
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt'; // Para comparar contraseñas
-import rateLimit from 'express-rate-limit';
+import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
 
-// Limitar intentos de login
-const loginLimiter = rateLimit({
-  windowMs: 10 * 1000,
-  max: 5, // 5 intentos cada 10 segundos
-  keyGenerator: (req) => req.body.username,
-  message: 'Too many login attempts. Please try again after 10 seconds.',
-});
-
 export default async function handler(req, res) {
-  // Asegúrate de que limitador de peticiones esté funcionando y no esté bloqueando sin enviar respuesta
-  loginLimiter(req, res, async () => {
-    if (req.method !== 'POST') {
-      // Siempre debe haber una respuesta en caso de que el método HTTP no sea permitido
-      return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method not allowed' });
+  }
+
+  const { username, password } = req.body;
+
+  try {
+    console.log('Attempting to find user:', username);
+    const user = await prisma.user.findUnique({ 
+      where: { username },
+      select: {
+        id: true,
+        username: true,
+        password: true,
+        role: true
+      }
+    });
+    console.log('User found:', user ? 'Yes' : 'No');
+
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid username or password' });
     }
 
-    const { username, password } = req.body;
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    try {
-      // Buscar al usuario en la base de datos
-      const user = await prisma.user.findUnique({
-        where: { username },
-      });
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid username or password' });
+    }
 
-      // Verifica si el usuario existe y si la contraseña es correcta
-      if (!user || !(await bcrypt.compare(password, user.password))) {
-        // Si el login falla, registrar el intento
-        await prisma.auditLog.create({
-          data: {
-            userId: user?.id || null,
-            action: 'LOGIN_ATTEMPT',
-            status: 'FAILED',
-            details: 'Invalid username or password',
-          },
-        });
+    const token = jwt.sign(
+      { userId: user.id, username: user.username, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
-        // Devolver respuesta 401 para indicar que las credenciales son incorrectas
-        return res.status(401).json({ message: 'Invalid username or password' });
-      }
+    // Registrar el intento de inicio de sesión exitoso
+    await prisma.auditLog.create({
+      data: {
+        userId: user.id,
+        action: 'LOGIN',
+        status: 'SUCCESS',
+        details: 'User logged in successfully',
+      },
+    });
 
-      // Si el login es exitoso, registrar el intento exitoso
-      await prisma.auditLog.create({
-        data: {
-          userId: user.id,
-          action: 'LOGIN_ATTEMPT',
-          status: 'SUCCESS',
-          details: 'User successfully logged in',
-        },
-      });
-
-      // Enviar respuesta con los datos del usuario
-      return res.status(200).json({
+    res.status(200).json({
+      message: 'Logged in successfully',
+      user: {
         id: user.id,
         username: user.username,
         role: user.role,
-      });
-    } catch (error) {
-      console.error('Login error:', error);
-
-      // Enviar respuesta con el error si ocurre algún fallo en el try-catch
-      return res.status(500).json({ message: 'Internal Server Error' });
-    } finally {
-      // Asegurarse de cerrar la conexión a la base de datos después de cada solicitud
-      await prisma.$disconnect();
-    }
-  });
+      },
+      token
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  } finally {
+    await prisma.$disconnect();
+  }
 }

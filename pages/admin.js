@@ -5,27 +5,27 @@ import Navbar from '../components/navbar';
 import Footer from '../components/footer';
 
 export default function Admin() {
-  const { user, logout } = useAuth();
+  const { user, logout, getToken } = useAuth();
   const router = useRouter();
-  const [articles, setArticles] = useState([]);
+  const [catalogueItems, setCatalogueItems] = useState([]);
   const [darkMode, setDarkMode] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [currentArticle, setCurrentArticle] = useState(null);
-  const [newArticle, setNewArticle] = useState({
+  const [currentItem, setCurrentItem] = useState(null);
+  const [newItem, setNewItem] = useState({
     title: '',
     description: '',
     imageUrl: '',
-    details: '',
+    isVisible: true,
   });
 
   useEffect(() => {
     if (!user) {
-      router.replace('/login');
-    } else if (user.role !== 'ADMIN') {
-      router.replace('/unauthorized');
+      router.push('/login');
+    } else if (user.role !== 'ADMIN' && user.role !== 'ADMIN_READ') {
+      router.push('/unauthorized');
     } else {
-      fetchArticles();
+      fetchCatalogueItems();
     }
   }, [user, router]);
 
@@ -41,20 +41,26 @@ export default function Admin() {
     };
   }, []);
 
-  const fetchArticles = async () => {
+  const fetchCatalogueItems = async () => {
     try {
-      const res = await fetch('/api/catalogue');
+      const token = getToken();
+      const res = await fetch('/api/catalogue', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       const data = await res.json();
-      setArticles(Array.isArray(data) ? data : []);
+      setCatalogueItems(Array.isArray(data) ? data : []);
     } catch (error) {
-      setArticles([]);
+      console.error('Error fetching catalogue items:', error);
+      setCatalogueItems([]);
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewArticle((prevArticle) => ({
-      ...prevArticle,
+    setNewItem((prevItem) => ({
+      ...prevItem,
       [name]: value,
     }));
   };
@@ -64,77 +70,87 @@ export default function Admin() {
     if (files.length > 0) {
       const file = files[0];
       const imageUrl = URL.createObjectURL(file);
-      setNewArticle((prevArticle) => ({
-        ...prevArticle,
+      setNewItem((prevItem) => ({
+        ...prevItem,
         imageUrl,
       }));
     }
   };
 
-  const validateArticle = (article) => {
-    const { title, description, imageUrl, details } = article;
-    return title && description && imageUrl && details;
+  const validateItem = (item) => {
+    const { title, description, imageUrl } = item;
+    return title && description && imageUrl;
   };
 
-  const addArticle = async () => {
-    if (!validateArticle(newArticle)) {
+  const addItem = async () => {
+    if (!validateItem(newItem)) {
       alert("Please fill in all the fields.");
       return;
     }
 
     const res = await fetch('/api/catalogue', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newArticle),
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+      body: JSON.stringify(newItem),
     });
-    const createdArticle = await res.json();
-    setArticles([...articles, createdArticle]);
+    const createdItem = await res.json();
+    setCatalogueItems([...catalogueItems, createdItem]);
     setIsModalOpen(false);
-    resetNewArticle();
+    resetNewItem();
   };
 
-  const resetNewArticle = () => {
-    setNewArticle({
+  const resetNewItem = () => {
+    setNewItem({
       title: '',
       description: '',
       imageUrl: '',
-      details: '',
+      isVisible: true,
     });
   };
 
-  const editArticle = (article) => {
-    setCurrentArticle(article);
-    setNewArticle(article);
+  const editItem = (item) => {
+    setCurrentItem(item);
+    setNewItem(item);
     setEditMode(true);
     setIsModalOpen(true);
   };
 
-  const updateArticle = async () => {
-    if (!validateArticle(newArticle)) {
+  const updateItem = async () => {
+    if (!validateItem(newItem)) {
       alert("Please fill in all the fields.");
       return;
     }
 
-    const res = await fetch(`/api/catalogue/${currentArticle.id}`, {
+    const res = await fetch(`/api/catalogue/${currentItem.id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newArticle),
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+      body: JSON.stringify(newItem),
     });
-    const updatedArticleFromServer = await res.json();
-    setArticles(articles.map((a) => (a.id === currentArticle.id ? updatedArticleFromServer : a)));
+    const updatedItemFromServer = await res.json();
+    setCatalogueItems(catalogueItems.map((item) => (item.id === currentItem.id ? updatedItemFromServer : item)));
     setIsModalOpen(false);
-    resetNewArticle();
-    setCurrentArticle(null);
+    resetNewItem();
+    setCurrentItem(null);
   };
 
-  const removeArticle = async (id) => {
-    if (!confirm('Are you sure you want to delete this article?')) return;
-    await fetch(`/api/catalogue/${id}`, { method: 'DELETE' });
-    setArticles(articles.filter((a) => a.id !== id));
+  const removeItem = async (id) => {
+    if (!confirm('Are you sure you want to delete this item?')) return;
+    await fetch(`/api/catalogue/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${getToken()}` } });
+    setCatalogueItems(catalogueItems.filter((item) => item.id !== id));
+  };
+
+  const toggleVisibility = async (id, currentVisibility) => {
+    const res = await fetch(`/api/catalogue/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+      body: JSON.stringify({ isVisible: !currentVisibility }),
+    });
+    const updatedItem = await res.json();
+    setCatalogueItems(catalogueItems.map((item) => (item.id === id ? updatedItem : item)));
   };
 
   if (!user) return <div>Loading...</div>;
-  if (user.role !== 'ADMIN') return <div>Unauthorized access</div>;
+  if (user.role !== 'ADMIN' && user.role !== 'ADMIN_READ') return <div>Unauthorized access</div>;
 
   return (
     <div>
@@ -142,54 +158,64 @@ export default function Admin() {
       <div className={`admin-page ${darkMode ? 'dark-mode' : ''}`}>
         <div className="admin-container">
           <h1 className="admin-title">Admin Dashboard</h1>
-          <p>Welcome, {user.name}!</p>
+          <p>Welcome, {user.username}!</p>
           <button className="logout-button" onClick={logout}>Logout</button>
 
-          <h2>Articles</h2>
-          <button className="add-button" onClick={() => { setEditMode(false); setIsModalOpen(true); }}>Add New Article</button>
+          <h2>Catalogue Items</h2>
+          {user.role === 'ADMIN' && (
+            <button className="add-button" onClick={() => { setEditMode(false); setIsModalOpen(true); }}>Add New Item</button>
+          )}
 
-          <ul className="article-list">
-            {articles.length > 0 ? (
-              articles.map((article) => (
-                <li key={article.id} className="article-item">
-                  <h3>{article.title}</h3>
-                  <p>{article.description}</p>
-                  <img src={article.imageUrl} alt={article.title} className="article-image" />
-                  <p><strong>Details:</strong> {article.details}</p>
-                  <div className="article-actions">
-                    <button className="edit-button" onClick={() => editArticle(article)}>Edit</button>
-                    <button className="delete-button" onClick={() => removeArticle(article.id)}>Delete</button>
+          <ul className="item-list">
+            {catalogueItems.length > 0 ? (
+              catalogueItems.map((item) => (
+                <li key={item.id} className="item-item">
+                  <h3>{item.title}</h3>
+                  <p>{item.description}</p>
+                  <img src={item.imageUrl} alt={item.title} className="item-image" />
+                  <div className="item-actions">
+                    <button className="visibility-button" onClick={() => toggleVisibility(item.id, item.isVisible)}>
+                      {item.isVisible ? 'Hide from Catalog' : 'Show in Catalog'}
+                    </button>
+                    {user.role === 'ADMIN' && (
+                      <>
+                        <button className="edit-button" onClick={() => editItem(item)}>Edit</button>
+                        <button className="delete-button" onClick={() => removeItem(item.id)}>Delete</button>
+                      </>
+                    )}
                   </div>
                 </li>
               ))
             ) : (
-              <p>No articles available.</p>
+              <p>No catalogue items available.</p>
             )}
           </ul>
         </div>
       </div>
-      {isModalOpen && (
+      {isModalOpen && user.role === 'ADMIN' && (
         <div className="modal">
           <div className="modal-content">
-            <h2>{editMode ? 'Edit Article' : 'Add New Article'}</h2>
+            <h2>{editMode ? 'Edit Catalogue Item' : 'Add New Catalogue Item'}</h2>
             <label>
               Title:
-              <input type="text" name="title" value={newArticle.title} onChange={handleInputChange} />
+              <input type="text" name="title" value={newItem.title} onChange={handleInputChange} />
             </label>
             <label>
               Description:
-              <input type="text" name="description" value={newArticle.description} onChange={handleInputChange} />
+              <input type="text" name="description" value={newItem.description} onChange={handleInputChange} />
             </label>
             <label>
-              Principal Image:
-              <input type="file" accept="image/*" onChange={handleImageChange} />
+              Image URL:
+              <input type="text" name="imageUrl" value={newItem.imageUrl} onChange={handleInputChange} />
             </label>
             <label>
-              Details:
-              <input type="text" name="details" value={newArticle.details} onChange={handleInputChange} />
+              Visible in Catalog:
+              <input type="checkbox" name="isVisible" checked={newItem.isVisible} onChange={(e) => setNewItem({...newItem, isVisible: e.target.checked})} />
             </label>
-            <button className="confirm-button" onClick={editMode ? updateArticle : addArticle}>{editMode ? 'Update Article' : 'Add Article'}</button>
-            <button className="cancel-button" onClick={() => { setIsModalOpen(false); setEditMode(false); setCurrentArticle(null); }}>Cancel</button>
+            <button className="confirm-button" onClick={editMode ? updateItem : addItem}>
+              {editMode ? 'Update Item' : 'Add Item'}
+            </button>
+            <button className="cancel-button" onClick={() => { setIsModalOpen(false); setEditMode(false); setCurrentItem(null); }}>Cancel</button>
           </div>
         </div>
       )}
@@ -255,14 +281,14 @@ export default function Admin() {
           color: white;
         }
 
-        .article-item {
+        .item-item {
           margin-bottom: 2rem;
           padding-bottom: 1rem;
           border-bottom: 1px solid #eee;
           text-align: left;
         }
 
-        .article-image {
+        .item-image {
           max-width: 100%;
           margin-bottom: 1rem;
           border-radius: 8px;
@@ -322,8 +348,13 @@ export default function Admin() {
           cursor: pointer;
         }
 
-        .article-actions button {
+        .item-actions button {
           margin-right: 0.5rem;
+        }
+
+        .visibility-button {
+          background-color: #ffc107;
+          color: black;
         }
       `}</style>
     </div>

@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { verifyToken } from '../../../utils/auth'; // Importar la función de verificación de tokens
+import { verifyToken } from '../../../utils/auth';
 
 const prisma = new PrismaClient();
 
@@ -9,22 +9,30 @@ export default async function handler(req, res) {
 
   const token = req.headers.authorization?.split(' ')[1];
 
-  // Verificar si el token está presente y es válido
-  if (!token) {
-    return res.status(401).json({ message: 'Unauthorized: Token is required' });
-  }
+  if (method === 'PUT' || method === 'DELETE') {
+    if (!token) {
+      return res.status(401).json({ message: 'Unauthorized: Token is required' });
+    }
 
-  let decodedToken;
-  try {
-    decodedToken = verifyToken(token); // Verificar el token
-  } catch (error) {
-    return res.status(401).json({ message: 'Unauthorized: Invalid token' });
+    let decodedToken;
+    try {
+      decodedToken = verifyToken(token);
+    } catch (error) {
+      return res.status(401).json({ message: 'Unauthorized: Invalid token' });
+    }
+
+    if (method === 'PUT' && decodedToken.role !== 'ADMIN' && decodedToken.role !== 'ADMIN_READ') {
+      return res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
+    }
+
+    if (method === 'DELETE' && decodedToken.role !== 'ADMIN') {
+      return res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
+    }
   }
 
   switch (method) {
     case 'GET':
       try {
-        // Obtener el ítem específico
         const item = await prisma.catalogueItem.findUnique({
           where: { id: parseInt(id) },
         });
@@ -40,13 +48,7 @@ export default async function handler(req, res) {
       break;
 
     case 'PUT':
-      // Verificar si el rol del usuario le permite actualizar el ítem
-      if (decodedToken.role !== 'ADMIN' && decodedToken.role !== 'ADMIN_READ') {
-        return res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
-      }
-
       try {
-        // Actualizar el ítem
         const updatedItem = await prisma.catalogueItem.update({
           where: { id: parseInt(id) },
           data: req.body,
@@ -59,11 +61,6 @@ export default async function handler(req, res) {
       break;
 
     case 'DELETE':
-      // Solo el rol ADMIN puede borrar un ítem
-      if (decodedToken.role !== 'ADMIN') {
-        return res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
-      }
-
       try {
         await prisma.catalogueItem.delete({
           where: { id: parseInt(id) },
@@ -76,7 +73,6 @@ export default async function handler(req, res) {
       break;
 
     default:
-      // Manejar métodos no permitidos
       res.setHeader('Allow', ['GET', 'PUT', 'DELETE']);
       res.status(405).end(`Method ${method} Not Allowed`);
   }

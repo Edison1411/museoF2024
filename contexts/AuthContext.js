@@ -24,21 +24,21 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ username, password }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || 'Failed to log in.');
+        throw new Error(data.message || 'Failed to log in.');
       }
 
-      const userData = await res.json(); // Obtenemos los datos del usuario, incluyendo el token
-      setUser(userData);
-      setToken(userData.token); // Guardamos el token en el estado
-      localStorage.setItem('user', JSON.stringify(userData));
-      localStorage.setItem('token', userData.token); // Guardamos el token en localStorage
+      setUser(data.user);
+      setToken(data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('token', data.token);
 
-      return userData;
+      return data.user;
     } catch (error) {
-      console.error('Error during login:', error.message || error);
-      throw new Error('An error occurred during login. Please try again.');
+      console.error('Error during login:', error.message);
+      throw error;
     }
   };
 

@@ -6,99 +6,56 @@ import Container from "./container";
 export default function Footer() {
   const clientInfo = {
     name: "Yachay Tech Museum",
-    description: "The Yachay Museum preserves and shares regional heritage through exhibits, programs, and community engagement, fostering cultural appreciation and creativity while promoting local pride and identity..",
     contactEmail: "museoarqueologico@yachaytech.edu.ec",
-    phoneNumber: " +593 6299 9500 ",
+    phoneNumber: "+593 6299 9500",
     address: "San Miguel de Urcuquí, Hacienda San José s/n"
   };
-
-  const legal = [];
 
   return (
     <div className="relative">
       <Container>
-        <div className="grid max-w-screen-xl grid-cols-1 gap-10 pt-10 mx-auto mt-5 border-t border-gray-100 dark:border-trueGray-700 lg:grid-cols-5">
-          <div className="lg:col-span-2">
-            <div>
-              {" "}
-              <Link href="/" className="flex items-center space-x-2 text-2xl font-medium text-black-500 dark:text-gray-100">
-                <Image
-                  src="/img/logo_foter.svg"
-                  alt="N"
-                  width="32"
-                  height="32"
-                  className="w-10"
-                />
-                <span>{clientInfo.name}</span>
-              </Link>
-            </div>
-
+        <div className="grid max-w-screen-xl grid-cols-1 gap-10 pt-10 mx-auto mt-5 border-t border-gray-100 dark:border-trueGray-700 lg:grid-cols-3">
+          <div className="flex flex-col items-start">
+            <Link href="/" className="flex items-center space-x-2 text-2xl font-medium text-black-500 dark:text-gray-100">
+              <Image src="/img/logo_foter.svg" alt="Logo" width="32" height="32" className="w-10" />
+              <span>{clientInfo.name}</span>
+            </Link>
             <div className="max-w-md mt-4 text-black-500 dark:text-black-400 text-justify">
               {clientInfo.description}
             </div>
+          </div>
 
+          <div className="flex flex-col items-start">
+            
             <div className="mt-5">
-              <a
-                href="https://vercel.com/?utm_source=web3templates&utm_campaign=oss"
-                target="_blank"
-                rel="noopener"
-                className="relative block w-44">
-                
-              </a>
+              <p>Email: {clientInfo.contactEmail}</p>
+              <p>Phone: {clientInfo.phoneNumber}</p>
+              <p>Address: {clientInfo.address}</p>
             </div>
           </div>
 
-          <div className="lg:col-span-1 flex justify"> {/* Alineación a la derecha */}
-            <div>
-              <div>Contact Information</div>
-              <div className="mt-5">
-                <p>Email: {clientInfo.contactEmail}</p>
-                <p>Phone: {clientInfo.phoneNumber}</p>
-                <p>Address: {clientInfo.address}</p>
-              </div>
-            </div>
-          </div>
-          <div className="lg:col-span-2 flex justify-end"> {/* Alineación a la derecha */}
-            <div>
-              <div>Follow us</div>
-              <div className="flex mt-5 space-x-5 text-gray-400 dark:text-gray-500">
-                <a
-                  href="https://twitter.com/UniYachayTech/status/1659196580317233152"
-                  target="_blank"
-                  rel="noopener">
-                  <span className="sr-only">Twitter</span>
-                  <Twitter />
-                </a>
-                <a
-                  href="https://www.yachaytech.edu.ec/museo-arqueologico/"
-                  target="_blank"
-                  rel="noopener">
-                  <span className="sr-only">Facebook</span>
-                  <Facebook />
-                </a>
-                <a
-                  href="https://www.instagram.com/museoyachay/"
-                  target="_blank"
-                  rel="noopener">
-                  <span className="sr-only">Instagram</span>
-                  <Instagram />
-                </a>
-                <a
-                  href="https://www.linkedin.com/company/uni-yachay-tech/?originalSubdomain=ec"
-                  target="_blank"
-                  rel="noopener">
-                  <span className="sr-only">Linkedin</span>
-                  <Linkedin />
-                </a>
-              </div>
+          <div className="flex flex-col items-start">
+            <div>Follow us</div>
+            <div className="flex mt-5 space-x-5 text-gray-400 dark:text-gray-500">
+              <a href="https://twitter.com/UniYachayTech/status/1659196580317233152" target="_blank" rel="noopener">
+                <span className="sr-only">Twitter</span>
+                <Twitter />
+              </a>
+              <a href="https://www.yachaytech.edu.ec/museo-arqueologico/" target="_blank" rel="noopener">
+                <span className="sr-only">Facebook</span>
+                <Facebook />
+              </a>
+              <a href="https://www.instagram.com/museoyachay/" target="_blank" rel="noopener">
+                <span className="sr-only">Instagram</span>
+                <Instagram />
+              </a>
             </div>
           </div>
         </div>
 
         <div className="my-10 text-sm text-center text-gray-600 dark:text-gray-400">
-          
-        
-          
+
+          <p>© 2024 Yachay Tech Museum. All rights reserved.</p>
         </div>
       </Container>
       {/* Do not remove this */}
@@ -139,16 +96,7 @@ const Instagram = ({ size = 24 }) => (
   </svg>
 );
 
-const Linkedin = ({ size = 24 }) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="currentColor">
-    <path d="M22.23 0H1.77C.8 0 0 .77 0 1.72v20.56C0 23.23.8 24 1.77 24h20.46c.98 0 1.77-.77 1.77-1.72V1.72C24 .77 23.2 0 22.23 0zM7.27 20.1H3.65V9.24h3.62V20.1zM5.47 7.76h-.03c-1.22 0-2-.83-2-1.87 0-1.06.8-1.87 2.05-1.87 1.24 0 2 .8 2.02 1.87 0 1.04-.78 1.87-2.05 1.87zM20.34 20.1h-3.63v-5.8c0-1.45-.52-2.45-1.83-2.45-1 0-1.6.67-1.87 1.32-.1.23-.11.55-.11.88v6.05H9.28s.05-9.82 0-10.84h3.63v1.54a3.6 3.6 0 0 1 3.26-1.8c2.39 0 4.18 1.56 4.18 4.89v6.21z" />
-  </svg>
-);
+
 
 const Backlink = () => {
   

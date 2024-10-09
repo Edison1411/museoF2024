@@ -15,10 +15,25 @@ const Catalogo = () => {
 
   useEffect(() => {
     const fetchArticles = async () => {
-      const response = await fetch(`/api/catalogue?page=${currentPage}&search=${searchTerm}`);
-      const { data, total } = await response.json(); 
-      setArticles(data);
-      setTotalItems(total);
+      try {
+        const response = await fetch(`/api/catalogue?page=${currentPage}&search=${searchTerm}`);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error('Error fetching articles:', errorData.message);
+          setArticles([]);
+          setTotalItems(0);
+          return;
+        }
+        
+        const { data, total } = await response.json(); 
+        setArticles(data);
+        setTotalItems(total);
+      } catch (error) {
+        console.error('Error parsing JSON:', error);
+        setArticles([]);
+        setTotalItems(0);
+      }
     };
 
     fetchArticles();
@@ -67,18 +82,20 @@ const Catalogo = () => {
           {articles.length === 0 ? (
             <p>No articles found.</p>
           ) : (
-            articles.map(article => (
+            articles.map((article, index) => (
               <div key={article.id} className={`max-w-sm rounded overflow-hidden shadow-lg m-4 border ${darkMode ? 'border-gray-600' : 'border-cyan-500'}`}>
-                {/* Contenido del artículo */}
                 <Link href={`/articles/${article.id}`}>
                   <div className="cursor-pointer bg-blue-200 rounded">
-                    <Image
-                      src={article.imageUrl || '/placeholder.jpg'} // Cambiado a imageUrl de acuerdo con el modelo de Prisma
-                      alt={article.title}
-                      width={500}
-                      height={300}
-                      layout="responsive"
-                    />
+                    <div className="relative w-full aspect-w-16 aspect-h-9">
+                      <Image
+                        src={article.imageUrl || '/placeholder.jpg'}
+                        alt={article.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        style={{ objectFit: 'cover' }}
+                        priority={index === 0} // Añade priority solo a la primera imagen
+                      />
+                    </div>
                     <div className="px-6 py-4">
                       <div className="font-bold text-xl mb-2 text-black">{article.title}</div>
                       <p className="text-base text-black">{article.description || 'No description available'}</p>

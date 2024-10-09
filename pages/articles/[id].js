@@ -26,8 +26,9 @@ const Articulo = ({ article }) => {
           <Image
             src="/images/museum.gif" 
             alt="Background animation"
-            layout="fill"
-            objectFit="cover"
+            fill
+            sizes="100vw"
+            style={{ objectFit: 'cover' }}
             className="opacity-50"
           />
         </div>
@@ -36,25 +37,27 @@ const Articulo = ({ article }) => {
           <div className="relative flex justify-center">
             <button onClick={handlePrevImage} className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-500 p-2 rounded-full focus:outline-none">&#8249;</button>
             <button onClick={handleNextImage} className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-500 p-2 rounded-full focus:outline-none">&#8250;</button>
-            <div className="w-full max-w-4xl">
+            <div className="w-full max-w-4xl relative aspect-w-16 aspect-h-9">
               <Image
                 src={article.relatedImages && article.relatedImages[currentImage] ? article.relatedImages[currentImage] : '/placeholder.jpg'}
                 alt={article.title}
-                layout="responsive"
-                width={500}
-                height={300}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                style={{ objectFit: 'cover' }}
+                priority
               />
             </div>
           </div>
           <div className="flex justify-between">
             {article.relatedImages && article.relatedImages.length > 0 ? (
               article.relatedImages.map((image, index) => (
-                <div key={index} className="w-1/4 p-2 border border-blue-500">
+                <div key={index} className="w-1/4 p-2 border border-blue-500 relative aspect-w-1 aspect-h-1">
                   <Image
                     src={image}
                     alt={article.title}
-                    width={400}
-                    height={400}
+                    fill
+                    sizes="(max-width: 768px) 25vw, 20vw"
+                    style={{ objectFit: 'cover' }}
                     onClick={() => setCurrentImage(index)}
                     className="cursor-pointer"
                   />
@@ -79,7 +82,7 @@ export async function getStaticProps({ params }) {
   const { id } = params;
 
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/catalogue/${id}`);
+    const res = await fetch(`http://localhost:3000/api/catalogue/${id}`);
 
     if (!res.ok) {
       return {
@@ -106,13 +109,13 @@ export async function getStaticProps({ params }) {
 // Generar rutas dinámicas para los artículos
 export async function getStaticPaths() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/catalogue`);
+    const res = await fetch(`http://localhost:3000/api/catalogue`);
 
     if (!res.ok) {
       throw new Error('Failed to fetch articles');
     }
 
-    const articles = await res.json();
+    const { data: articles } = await res.json();
 
     const paths = articles.map((article) => ({
       params: { id: article.id.toString() },
