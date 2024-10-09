@@ -51,7 +51,7 @@ cd museeF2024
 npm install
 ```
 
-### 5. Crear un usuario administrador
+### 5. Crear los usuarios con los diferentes roles
 
 #### 5.1 Navega a la carpeta scripts:
 
@@ -67,7 +67,18 @@ node createUser.js
 
 Este script creará los usuarios en nuestra base de datos usando bcrypt
 
+#### 5.3 Crear y visualizar un artículo 
 
+En la página de administrador, puedes crear un artículo con tus propios datos o, si lo prefieres, puedes usar datos de ejemplo (opcional). 
+Para hacerlo manualmente, agrega al menos dos imágenes y el contenido de tu elección. Una vez creado el artículo, podrás visualizarlo en la página del catálogo en:
+
+[http://localhost:3000/catalogo](http://localhost:3000/catalogo)
+
+Si prefieres usar un ejemplo automatizado para la creación de artículos, puedes ejecutar el siguiente script. Sin embargo no es necesario pues esto se puede hacer directamente desde el dashboard de administracion:
+
+```bash
+node addCatalogue.js
+```
 
 ### 6. Ejecutar la aplicación
 
