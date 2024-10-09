@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import Head from "next/head";
 import Navbar from "../components/navbar";
 import Link from 'next/link';
@@ -8,6 +9,7 @@ const ITEMS_PER_PAGE = 6;
 
 const Catalogo = () => {
   const [articles, setArticles] = useState([]);
+  const { getToken } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [darkMode, setDarkMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -16,21 +18,22 @@ const Catalogo = () => {
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const response = await fetch(`/api/catalogue?page=${currentPage}&search=${searchTerm}`);
+        const token = getToken();
+        const response = await fetch(`/api/catalogue?page=${currentPage}&search=${searchTerm}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
         
         if (!response.ok) {
-          const errorData = await response.json();
-          console.error('Error fetching articles:', errorData.message);
-          setArticles([]);
-          setTotalItems(0);
-          return;
+          throw new Error('Failed to fetch articles');
         }
         
-        const { data, total } = await response.json(); 
-        setArticles(data);
-        setTotalItems(total);
+        const data = await response.json();
+        setArticles(data.items.filter(item => item.isVisible));
+        setTotalItems(data.total);
       } catch (error) {
-        console.error('Error parsing JSON:', error);
+        console.error('Error fetching articles:', error);
         setArticles([]);
         setTotalItems(0);
       }

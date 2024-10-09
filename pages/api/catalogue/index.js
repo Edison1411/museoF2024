@@ -41,13 +41,12 @@ export default async function handler(req, res) {
               OR: [
                 { title: { contains: search, mode: 'insensitive' } },
                 { description: { contains: search, mode: 'insensitive' } },
-                // Add more fields if necessary
               ],
             }
           : {};
 
         // Fetch data and total count concurrently
-        const [data, total] = await Promise.all([
+        const [items, total] = await Promise.all([
           prisma.catalogueItem.findMany({
             where,
             skip,
@@ -56,7 +55,7 @@ export default async function handler(req, res) {
           prisma.catalogueItem.count({ where }),
         ]);
 
-        res.status(200).json({ data, total });
+        res.status(200).json({ items, total, page: parseInt(page), itemsPerPage: ITEMS_PER_PAGE });
       } catch (error) {
         console.error('Error fetching items:', error);
         res.status(500).json({ message: 'Error fetching items' });
@@ -64,6 +63,9 @@ export default async function handler(req, res) {
       break;
 
     case 'POST':
+      if (decodedToken.role !== 'ADMIN') {
+        return res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
+      }
       try {
         const newItem = await prisma.catalogueItem.create({
           data: req.body,

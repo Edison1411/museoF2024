@@ -4,15 +4,14 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null); // Guardar el token JWT
+  const [token, setToken] = useState(null);
 
-  // Cargar el usuario y token almacenados en localStorage al montar el componente
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     const storedToken = localStorage.getItem('token');
     if (storedUser && storedToken) {
       setUser(JSON.parse(storedUser));
-      setToken(storedToken); // Guardar el token en el estado
+      setToken(storedToken);
     }
   }, []);
 
@@ -24,32 +23,31 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify({ username, password }),
       });
 
-      const data = await res.json();
-
       if (!res.ok) {
-        throw new Error(data.message || 'Failed to log in.');
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Failed to log in.');
       }
 
-      setUser(data.user);
-      setToken(data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      localStorage.setItem('token', data.token);
+      const userData = await res.json();
+      setUser(userData);
+      setToken(userData.token);
+      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('token', userData.token);
 
-      return data.user;
+      return userData;
     } catch (error) {
-      console.error('Error during login:', error.message);
-      throw error;
+      console.error('Error during login:', error.message || error);
+      throw new Error('An error occurred during login. Please try again.');
     }
   };
 
   const logout = () => {
     setUser(null);
-    setToken(null); // Borrar el token del estado
+    setToken(null);
     localStorage.removeItem('user');
-    localStorage.removeItem('token'); // Borrar el token del localStorage
+    localStorage.removeItem('token');
   };
 
-  // Función para obtener el token
   const getToken = () => {
     return token;
   };
