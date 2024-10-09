@@ -21,7 +21,7 @@ cd museeF2024
 
 #### 3.1 Crear una base de datos en Supabase
 
-- Regístrate o inicia sesión en [Supabase](https://supabase.io/).
+- Regístrate o inicia sesión en [Supabase](https://supabase.com/).
 - Crea un nuevo proyecto y toma nota de la URL de la base de datos y la clave API.
 
 #### 3.2 Configurar Prisma
