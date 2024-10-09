@@ -11,8 +11,6 @@ export default function Admin() {
   const [catalogueItems, setCatalogueItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentItem, setCurrentItem] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -58,7 +56,7 @@ export default function Admin() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` // Asegúrate de que el token se envíe correctamente
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ isVisible: !currentVisibility }),
       });
@@ -107,8 +105,10 @@ export default function Admin() {
       <Navbar />
       <div className="admin-container">
         <h1 className="admin-title">Admin Dashboard</h1>
-        <p>Welcome, {user.username}!</p>
-        <button className="logout-button" onClick={logout}>Logout</button>
+        <div className="welcome-message">
+          <p>Welcome, <span className="username">{user.username}</span>!</p>
+          <button className="logout-button" onClick={logout}>Logout</button>
+        </div>
 
         <h2>Catalogue Items</h2>
         {isLoading ? (
@@ -156,34 +156,61 @@ export default function Admin() {
           max-width: 1200px;
           margin: 0 auto;
           padding: 20px;
+          background-color: #f9f9f9;
+          border-radius: 8px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
         .admin-title {
-          font-size: 2em;
+          font-size: 2.5em;
           margin-bottom: 20px;
+          color: #333;
+        }
+        .welcome-message {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+        }
+        .username {
+          font-weight: bold;
         }
         .logout-button {
           background-color: #f44336;
           color: white;
-          padding: 10px 15px;
+          padding: 10px 20px;
           border: none;
           border-radius: 4px;
           cursor: pointer;
+          transition: background-color 0.3s;
+        }
+        .logout-button:hover {
+          background-color: #d32f2f;
         }
         .item-list {
           list-style-type: none;
           padding: 0;
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 20px;
         }
         .item-item {
+          background-color: white;
           border: 1px solid #ddd;
           padding: 15px;
-          margin-bottom: 15px;
-          border-radius: 4px;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          transition: transform 0.2s;
+        }
+        .item-item:hover {
+          transform: translateY(-5px);
         }
         .item-image-container {
-          width: 200px;
+          width: 100%;
           height: 200px;
           position: relative;
           margin-bottom: 10px;
+          border-radius: 8px;
+          overflow: hidden;
         }
         .item-actions {
           display: flex;
@@ -191,22 +218,36 @@ export default function Admin() {
           margin-top: 10px;
         }
         .visibility-button, .edit-button, .delete-button {
-          padding: 5px 10px;
+          padding: 8px 12px;
           border: none;
           border-radius: 4px;
           cursor: pointer;
+          transition: background-color 0.3s;
         }
         .visibility-button {
           background-color: #4CAF50;
           color: white;
         }
+        .visibility-button:hover {
+          background-color: #388E3C;
+        }
         .edit-button {
           background-color: #2196F3;
           color: white;
         }
+        .edit-button:hover {
+          background-color: #1976D2;
+        }
         .delete-button {
           background-color: #f44336;
           color: white;
+        }
+        .delete-button:hover {
+          background-color: #d32f2f;
+        }
+        .error {
+          color: #f44336;
+          font-weight: bold;
         }
       `}</style>
     </div>
