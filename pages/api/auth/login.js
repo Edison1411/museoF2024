@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 // Limitar intentos de login
 const loginLimiter = rateLimit({
   windowMs: 10 * 1000,
-  max: 5, // 5 intentos cada 10 segundos
+  max: 3, // 
   keyGenerator: (req) => req.body.username,
   message: 'Too many login attempts. Please try again after 10 seconds.',
 });

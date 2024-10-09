@@ -34,6 +34,7 @@ model AuditLog {
   status    String
   details   String?
   createdAt DateTime @default(now())
+  ip        String?  
   user      User?    @relation(fields: [userId], references: [id])
 }
 
