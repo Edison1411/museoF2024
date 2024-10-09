@@ -13,8 +13,8 @@ Antes de comenzar, asegúrate de tener **Node.js** instalado en tu máquina. Si 
 Clona este repositorio en tu máquina local:
 
 ```bash
-git clone https://github.com/Edison1411/museeF.git
-cd museeF
+git clone https://github.com/Edison1411/museeF2024.git
+cd museeF2024
 ```
 
 ### 3. Configurar la base de datos
