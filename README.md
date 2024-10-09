@@ -59,16 +59,15 @@ npm install
 cd scripts
 ```
 
-#### 5.2 Ejecuta el script para crear el administrador
+#### 5.2 Ejecuta el script para crear los usuarios
 
 ```bash
-node createAdmin.js
+node createUser.js
 ```
 
-Este script creará un usuario administrador con las credenciales:
+Este script creará los usuarios en nuestra base de datos usando bcrypt
 
-- Email: admin@example.com
-- Contraseña: your_secure_password
+
 
 ### 6. Ejecutar la aplicación
 
@@ -93,7 +92,6 @@ Esto se logra gracias a los métodos HTTP para agregar, eliminar y obtener infor
 ## Autenticación y Seguridad
 
 - **Autenticación**: Utilizamos JWT para autenticar a los usuarios. Asegúrate de configurar `JWT_SECRET` en tu archivo `.env`.
-- **Protección CSRF**: Implementamos medidas de protección CSRF para asegurar que las solicitudes sean legítimas. Asegúrate de revisar la configuración de seguridad en tu aplicación.
 - **Rate Limiting**: Limitamos los intentos de inicio de sesión para proteger contra ataques de fuerza bruta.
 
 ## Contribuciones
