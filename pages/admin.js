@@ -58,9 +58,8 @@ export default function Admin() {
   };
 
   const toggleVisibility = async (id, currentVisibility) => {
-    // Verificar si estamos dentro del horario permitido antes de actualizar
     if (!isWithinAllowedTime()) {
-      return; // Simplemente no hace nada si no estamos en el tiempo permitido
+      return; 
     }
 
     if (user && (user.role === 'ADMIN' || user.role === 'ADMIN_READ')) {
