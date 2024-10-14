@@ -5,6 +5,12 @@ import Navbar from '../components/navbar';
 import Footer from '../components/footer';
 import Image from 'next/image';
 
+// Función para verificar si estamos dentro del horario permitido
+const isWithinAllowedTime = () => {
+  const currentTime = new Date().getHours();
+  return currentTime >= 13 && currentTime < 16;
+};
+
 export default function Admin() {
   const { user, logout, getToken } = useAuth();
   const router = useRouter();
@@ -13,13 +19,19 @@ export default function Admin() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Redirigir si no hay usuario o si el rol no es permitido
     if (!user) {
       router.push('/login');
-    } else if (user.role !== 'ADMIN' && user.role !== 'ADMIN_READ') {
-      router.push('/unauthorized');
-    } else {
-      fetchCatalogueItems();
+      return; // Asegúrate de que la función se detenga después de redirigir
     }
+
+    if (user.role !== 'ADMIN' && user.role !== 'ADMIN_READ') {
+      router.push('/unauthorized');
+      return; // Detiene la ejecución si el rol no es permitido
+    }
+
+    // Si el usuario tiene el rol correcto, cargar los elementos del catálogo
+    fetchCatalogueItems();
   }, [user, router]);
 
   const fetchCatalogueItems = async () => {
@@ -46,59 +58,62 @@ export default function Admin() {
   };
 
   const toggleVisibility = async (id, currentVisibility) => {
-    if (user.role !== 'ADMIN' && user.role !== 'ADMIN_READ') {
-      setError('Insufficient permissions to change visibility.');
-      return;
+    // Verificar si estamos dentro del horario permitido antes de actualizar
+    if (!isWithinAllowedTime()) {
+      return; // Simplemente no hace nada si no estamos en el tiempo permitido
     }
-    try {
-      const token = getToken();
-      const res = await fetch(`/api/catalogue/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ isVisible: !currentVisibility }),
-      });
-      if (!res.ok) {
-        throw new Error('Failed to update item visibility');
+
+    if (user && (user.role === 'ADMIN' || user.role === 'ADMIN_READ')) {
+      try {
+        const token = getToken();
+        const res = await fetch(`/api/catalogue/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ isVisible: !currentVisibility }),
+        });
+        if (!res.ok) {
+          throw new Error('Failed to update item visibility');
+        }
+        const updatedItem = await res.json();
+        setCatalogueItems(catalogueItems.map(item => 
+          item.id === id ? updatedItem : item
+        ));
+      } catch (error) {
+        console.error('Error updating item visibility:', error);
+        setError('Failed to update item visibility. Please try again.');
       }
-      const updatedItem = await res.json();
-      setCatalogueItems(catalogueItems.map(item => 
-        item.id === id ? updatedItem : item
-      ));
-    } catch (error) {
-      console.error('Error updating item visibility:', error);
-      setError('Failed to update item visibility. Please try again.');
     }
   };
 
   const deleteItem = async (id) => {
-    if (user.role !== 'ADMIN') {
-      setError('Insufficient permissions to delete item.');
-      return;
-    }
-    if (!confirm('Are you sure you want to delete this item?')) return;
-    try {
-      const token = getToken();
-      const res = await fetch(`/api/catalogue/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
+    if (user && user.role === 'ADMIN') {
+      if (!confirm('Are you sure you want to delete this item?')) return;
+      try {
+        const token = getToken();
+        const res = await fetch(`/api/catalogue/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        if (!res.ok) {
+          throw new Error('Failed to delete item');
         }
-      });
-      if (!res.ok) {
-        throw new Error('Failed to delete item');
+        setCatalogueItems(catalogueItems.filter(item => item.id !== id));
+      } catch (error) {
+        console.error('Error deleting item:', error);
+        setError('Failed to delete item. Please try again.');
       }
-      setCatalogueItems(catalogueItems.filter(item => item.id !== id));
-    } catch (error) {
-      console.error('Error deleting item:', error);
-      setError('Failed to delete item. Please try again.');
+    } else {
+      setError('Insufficient permissions to delete item.');
     }
   };
 
+  // Asegúrate de que el usuario esté definido antes de intentar acceder a sus propiedades
   if (!user) return <div>Loading...</div>;
-  if (user.role !== 'ADMIN' && user.role !== 'ADMIN_READ') return <div>Unauthorized access</div>;
 
   return (
     <div>
@@ -151,6 +166,7 @@ export default function Admin() {
         )}
       </div>
       <Footer />
+
       <style jsx>{`
         .admin-container {
           max-width: 1200px;

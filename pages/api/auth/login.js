@@ -1,49 +1,59 @@
-// pages/api/auth/login.js
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcrypt'; // Para comparar contraseñas
-import jwt from 'jsonwebtoken'; // Importa jwt para generar el token
+import bcrypt from 'bcrypt'; 
+import jwt from 'jsonwebtoken';
 import rateLimit from 'express-rate-limit';
 
 const prisma = new PrismaClient();
 
 // Limitar intentos de login
 const loginLimiter = rateLimit({
-  windowMs: 10 * 1000,
-  max: 3, // 
+  windowMs: 10 * 1000, // 10 segundos
+  max: 3, // Máximo de 3 intentos
   keyGenerator: (req) => req.body.username,
   message: 'Too many login attempts. Please try again after 10 seconds.',
 });
 
+// Función para verificar si estamos dentro del horario permitido
+const isWithinAllowedTime = () => {
+  const currentTime = new Date().getHours();
+  return currentTime >= 13 && currentTime < 16;
+};
+
 export default async function handler(req, res) {
-  // Asegúrate de que limitador de peticiones esté funcionando y no esté bloqueando sin enviar respuesta
+  // Limitar intentos de login (aplica para cualquier solicitud al endpoint)
   loginLimiter(req, res, async () => {
     if (req.method !== 'POST') {
-      // Siempre debe haber una respuesta en caso de que el método HTTP no sea permitido
       return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
     }
 
     const { username, password } = req.body;
 
     try {
+      // Verificar si estamos dentro del horario permitido ANTES de consultar en la BD
+      if (!isWithinAllowedTime()) {
+        return res.status(403).json({
+          message: 'Access denied: You can only log in between 1 PM (13:00) and 4 PM (16:00).',
+        });
+      }
+
       // Buscar al usuario en la base de datos
       const user = await prisma.user.findUnique({
         where: { username },
       });
 
-      // Verifica si el usuario existe y si la contraseña es correcta
+      // Verificar si el usuario existe y si la contraseña es correcta
       if (!user || !(await bcrypt.compare(password, user.password))) {
-        // Si el login falla, registrar el intento
+        // Registrar intento de login fallido
         await prisma.auditLog.create({
           data: {
             userId: user?.id || null,
             action: 'LOGIN_ATTEMPT',
             status: 'FAILED',
-            details: 'Invalid username or password',
+            details: 'Failed to log in',
           },
         });
 
-        // Devolver respuesta 401 para indicar que las credenciales son incorrectas
-        return res.status(401).json({ message: 'Invalid username or password' });
+        return res.status(401).json({ message: 'Failed to log in' });
       }
 
       // Si el login es exitoso, registrar el intento exitoso
@@ -56,27 +66,23 @@ export default async function handler(req, res) {
         },
       });
 
-      // Generar el token JWT
+      // Generar token JWT
       const token = jwt.sign(
         { id: user.id, username: user.username, role: user.role },
-        process.env.JWT_SECRET, // Asegúrate de que esta variable de entorno esté configurada
+        process.env.JWT_SECRET,
         { expiresIn: '1h' }
       );
 
-      // Enviar respuesta con los datos del usuario y el token
       return res.status(200).json({
         id: user.id,
         username: user.username,
         role: user.role,
-        token, // Incluye el token en la respuesta
+        token,
       });
     } catch (error) {
       console.error('Login error:', error);
-
-      // Enviar respuesta con el error si ocurre algún fallo en el try-catch
       return res.status(500).json({ message: 'Internal Server Error' });
     } finally {
-      // Asegurarse de cerrar la conexión a la base de datos después de cada solicitud
       await prisma.$disconnect();
     }
   });
