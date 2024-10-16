@@ -1,4 +1,3 @@
-// pages/login.js
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useRouter } from 'next/router';
@@ -6,7 +5,7 @@ import Navbar from '../components/navbar';
 import Footer from '../components/footer';
 
 export default function Login() {
-  const [username, setUsername] = useState(''); 
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,10 +25,14 @@ export default function Login() {
     }
 
     try {
-      await login(username, password);
-      router.push('/admin'); // Redirige al dashboard de administrador
+      const result = await login(username, password);
+      if (result.success) {
+        router.push('/admin');
+      } else {
+        setError(result.error);
+      }
     } catch (error) {
-      setError('Failed to log in. Please check your username and password.');
+      setError('An unexpected error occurred. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -79,8 +82,8 @@ export default function Login() {
             </button>
           </form>
         </div>
-       </div>
-       <Footer/>
+      </div>
+      <Footer />
 
       {/* Estilos */}
       <style jsx>{`
@@ -89,13 +92,13 @@ export default function Login() {
           justify-content: center;
           align-items: center;
           height: 100vh;
-          background-color: #f0f4f8; /* Fondo suave */
+          background-color: #f0f4f8;
         }
         .login-box {
           background-color: #ffffff;
           padding: 3rem;
           border-radius: 12px;
-          box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); /* Sombra suave */
+          box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
           width: 100%;
           max-width: 400px;
           text-align: center;
@@ -130,7 +133,7 @@ export default function Login() {
         }
         input:focus {
           outline: none;
-          border-color: #2196f3; /* Color de foco */
+          border-color: #2196f3;
         }
         .password-container {
           display: flex;
@@ -166,7 +169,7 @@ export default function Login() {
           transition: background-color 0.3s ease;
         }
         button[type="submit"]:hover {
-          background-color: #1e88e5; /* Color de hover */
+          background-color: #1e88e5;
         }
         button[type="submit"]:disabled {
           background-color: #cccccc;
