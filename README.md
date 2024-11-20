@@ -83,7 +83,7 @@ npm run dev
 
 Visita [http://localhost:3000/login](http://localhost:3000/login) para iniciar sesión.
 
-Si ingresas incorrectamente varias veces, verás el sistema de rate limiting en acción. El rate limiter bloquea el acceso si intentas ingresar mal las credenciales muchas veces en un corto período de tiempo. Tras varios intentos fallidos, deberás esperar 10 segundos antes de volver a intentar. Si intentas ingresar continuamente de forma incorrecta, la cuenta quedará bloqueada temporalmente sin importar si se ingresan las credenciales correctas.
+Si ingresas incorrectamente varias veces, verás el sistema de rate limiting en acción. El rate limiter bloquea el acceso si intentas ingresar mal las credenciales muchas veces en un corto período de tiempo. Tras varios intentos fallidos, deberás esperar 10 segundos antes de volver a intentar. Si intentas ingresar continuamente de forma incorrecta, la cuenta quedará bloqueada temporalmente sin importar si se ingresan las credenciales correctas. Tambien se integro el acceso el acceso por roles (rbac) junto con restricciones por acceso (abac). Para configuarar esto se puede hacer directamente en el `admin.js`
 
 ### 7. Crear y visualizar un artículo
 
