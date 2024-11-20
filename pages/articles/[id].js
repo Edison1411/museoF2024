@@ -1,19 +1,20 @@
 import Head from "next/head";
 import Image from "next/image";
-import { useState } from "react";
-import Navbar from "../../components/navbar"; 
-import Footer from "../../components/footer"; 
+import Navbar from "../../components/navbar";
+import Footer from "../../components/footer";
 
-const Articulo = ({ article }) => {
-  const [currentImage, setCurrentImage] = useState(0);
-
-  const handlePrevImage = () => {
-    setCurrentImage((prev) => Math.max(prev - 1, 0));
-  };
-
-  const handleNextImage = () => {
-    setCurrentImage((prev) => Math.min(prev + 1, article.relatedImages.length - 1));
-  };
+export default function Articulo({ article }) {
+  if (!article) {
+    return (
+      <>
+        <Navbar />
+        <div className="container mx-auto p-8">
+          <h1 className="text-2xl font-bold">Artículo no encontrado</h1>
+        </div>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
@@ -21,115 +22,70 @@ const Articulo = ({ article }) => {
         <title>{article.title} - Descripción Detallada</title>
       </Head>
       <Navbar />
-      <div className="container mx-auto p-8 relative">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="/images/museum.gif" 
-            alt="Background animation"
-            fill
-            sizes="100vw"
-            style={{ objectFit: 'cover' }}
-            className="opacity-50"
-          />
-        </div>
-        <div className="relative z-50">
+      <main className="container mx-auto p-8">
+        <article className="max-w-4xl mx-auto">
           <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
-          <div className="relative flex justify-center">
-            <button onClick={handlePrevImage} className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-500 p-2 rounded-full focus:outline-none">&#8249;</button>
-            <button onClick={handleNextImage} className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-500 p-2 rounded-full focus:outline-none">&#8250;</button>
-            <div className="w-full max-w-4xl relative aspect-w-16 aspect-h-9">
-              <Image
-                src={article.relatedImages && article.relatedImages[currentImage] ? article.relatedImages[currentImage] : '/placeholder.jpg'}
-                alt={article.title}
-                fill
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                style={{ objectFit: 'cover' }}
-                priority
-              />
-            </div>
+          
+          <div className="relative w-full h-[600px] mb-4">
+            <Image
+              src={article.imageUrl}
+              alt={article.title}
+              fill
+              style={{ objectFit: 'contain' }}
+              priority
+              className="rounded-lg shadow-lg"
+            />
           </div>
-          <div className="flex justify-between">
-            {article.relatedImages && article.relatedImages.length > 0 ? (
-              article.relatedImages.map((image, index) => (
-                <div key={index} className="w-1/4 p-2 border border-blue-500 relative aspect-w-1 aspect-h-1">
-                  <Image
-                    src={image}
-                    alt={article.title}
-                    fill
-                    sizes="(max-width: 768px) 25vw, 20vw"
-                    style={{ objectFit: 'cover' }}
-                    onClick={() => setCurrentImage(index)}
-                    className="cursor-pointer"
-                  />
-                </div>
-              ))
-            ) : (
-              <p>No related images available.</p>
-            )}
+
+          <div className="prose max-w-none">
+            <p className="text-lg">{article.description}</p>
           </div>
-          <p className="text-lg my-4">{article.details}</p>
-        </div>
-      </div>
+
+          <div className="mt-4 bg-gray-100 p-4 rounded">
+            <p className="text-sm text-gray-600">
+              Fecha de creación: {article.createdAt ? 
+                new Date(article.createdAt).toLocaleDateString() : 
+                'Fecha no disponible'}
+            </p>
+            <p className="text-sm text-gray-600">
+              Última actualización: {article.updatedAt ? 
+                new Date(article.updatedAt).toLocaleDateString() : 
+                'Fecha no disponible'}
+            </p>
+          </div>
+        </article>
+      </main>
       <Footer />
     </>
   );
-};
+}
 
-export default Articulo;
-
-// Obtener datos del artículo desde la API para la página dinámica
-export async function getStaticProps({ params }) {
-  const { id } = params;
+export async function getServerSideProps({ params }) {
+  if (!params?.id) {
+    return { props: { article: null } };
+  }
 
   try {
-    const res = await fetch(`http://localhost:3000/api/catalogue/${id}`);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    const response = await fetch(`${apiUrl}/api/catalogue/${params.id}`);
 
-    if (!res.ok) {
-      return {
-        notFound: true, // Si ocurre un error, devolver una página 404
-      };
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const article = await res.json();
+    const article = await response.json();
 
     return {
       props: {
-        article,
-      },
-      revalidate: 10, // Revalidar los datos cada 10 segundos (si deseas ISR)
+        article
+      }
     };
   } catch (error) {
     console.error('Error fetching article:', error);
     return {
-      notFound: true,
-    };
-  }
-}
-
-// Generar rutas dinámicas para los artículos
-export async function getStaticPaths() {
-  try {
-    const res = await fetch(`http://localhost:3000/api/catalogue`);
-
-    if (!res.ok) {
-      throw new Error('Failed to fetch articles');
-    }
-
-    const { data: articles } = await res.json();
-
-    const paths = articles.map((article) => ({
-      params: { id: article.id.toString() },
-    }));
-
-    return {
-      paths,
-      fallback: false, // Si un artículo no existe, mostrará una página 404
-    };
-  } catch (error) {
-    console.error('Error fetching paths:', error);
-    return {
-      paths: [],
-      fallback: false,
+      props: {
+        article: null
+      }
     };
   }
 }

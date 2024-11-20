@@ -54,7 +54,7 @@ const Catalogo = () => {
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
-    setCurrentPage(1); // Resetear a la primera página cuando se cambia el término de búsqueda
+    setCurrentPage(1); 
   };
 
   return (
@@ -87,7 +87,7 @@ const Catalogo = () => {
           ) : (
             articles.map((article, index) => (
               <div key={article.id} className={`max-w-sm rounded overflow-hidden shadow-lg m-4 border ${darkMode ? 'border-gray-600' : 'border-cyan-500'}`}>
-                <Link href={`/articles/${article.id}`}>
+                <div href={`/articles/${article.id}`}>
                   <div className="cursor-pointer bg-blue-200 rounded">
                     <div className="relative w-full aspect-w-16 aspect-h-9">
                       <Image
@@ -104,7 +104,7 @@ const Catalogo = () => {
                       <p className="text-base text-black">{article.description || 'No description available'}</p>
                     </div>
                   </div>
-                </Link>
+                </div>
                 {/* Sección de información adicional */}
                 <div className="px-6 py-4 bg-blue-200 rounded text-black">
                   <div className="text-sm">

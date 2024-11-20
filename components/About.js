@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Container from "./container";
-import MuseumImg from "../public/img/Museo.jpg";
+import MuseumImg from "../public/img/museo.jpg";
 
 import { Swiper, SwiperSlide } from 'swiper/react';
 
