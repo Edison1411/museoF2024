@@ -13,8 +13,8 @@ Antes de comenzar, asegúrate de tener **Node.js** instalado en tu máquina. Si 
 Clona este repositorio en tu máquina local:
 
 ```bash
-git clone https://github.com/Edison1411/museeF.git
-cd museeF
+git clone https://github.com/Edison1411/museoF2024.git
+cd museoF2024
 ```
 
 ### 3. Configurar la base de datos
@@ -28,19 +28,19 @@ cd museeF
 
 - Asegúrate de tener Prisma instalado globalmente:
 
-  ```bash
-  npm install -g prisma
-  ```
+```bash
+npm install -g prisma
+```
 
 - Configura tu archivo `.env` con la URL de la base de datos de Supabase:
 
-  ```bash
+```bash
 DATABASE_URL=""
 JWT_SECRET=""
 NEXT_PUBLIC_SUPABASE_URL=""
 NEXT_PUBLIC_SUPABASE_ANON_KEY=""
 NEXT_PUBLIC_API_URL=
-  ```
+```
 
 - Ejecuta las migraciones de Prisma para configurar la base de datos:
 
