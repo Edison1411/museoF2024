@@ -44,9 +44,9 @@ NEXT_PUBLIC_API_URL=
 
 - Ejecuta las migraciones de Prisma para configurar la base de datos:
 
-  ```bash
-  npx prisma migrate dev --name init
-  ```
+```bash
+npx prisma migrate dev --name init
+```
 
 ### 4. Instalar las dependencias
 
