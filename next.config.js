@@ -7,18 +7,19 @@ const nextConfig = {
   output: "standalone",
   productionBrowserSourceMaps: true,
   images: {
-    domains: ['drive.google.com'],
+    // Dominios permitidos para cargar imágenes
+    domains: ['drive.google.com', 'live.staticflickr.com'],
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'drive.google.com',
         port: '',
-        pathname: '/uc',
+        pathname: '/**', // Ajuste para permitir rutas más amplias
       },
       {
         protocol: 'https',
         hostname: 'live.staticflickr.com',
-        pathname: '/**',
+        pathname: '/**', // Permite todas las rutas bajo este dominio
       },
     ],
   },
