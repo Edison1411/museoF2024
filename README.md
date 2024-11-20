@@ -35,8 +35,11 @@ cd museeF
 - Configura tu archivo `.env` con la URL de la base de datos de Supabase:
 
   ```plaintext
-  DATABASE_URL=postgresql://usuario:contraseña@host:puerto/base_de_datos
-  JWT_SECRET=tu_secreto_jwt
+DATABASE_URL=""
+JWT_SECRET=""
+NEXT_PUBLIC_SUPABASE_URL=""
+NEXT_PUBLIC_SUPABASE_ANON_KEY=""
+NEXT_PUBLIC_API_URL=
   ```
 
 - Ejecuta las migraciones de Prisma para configurar la base de datos:
