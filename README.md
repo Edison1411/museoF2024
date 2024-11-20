@@ -34,7 +34,7 @@ cd museeF
 
 - Configura tu archivo `.env` con la URL de la base de datos de Supabase:
 
-  ```plaintext
+  ```bash
 DATABASE_URL=""
 JWT_SECRET=""
 NEXT_PUBLIC_SUPABASE_URL=""
