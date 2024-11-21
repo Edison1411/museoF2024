@@ -7,8 +7,6 @@ const nextConfig = {
   output: "standalone",
   productionBrowserSourceMaps: true,
   images: {
-    // Dominios permitidos para cargar imágenes
-    domains: ['drive.google.com', 'live.staticflickr.com'],
     remotePatterns: [
       {
         protocol: 'https',
