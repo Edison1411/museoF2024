@@ -13,8 +13,8 @@ Antes de comenzar, asegúrate de tener **Node.js** instalado en tu máquina. Si 
 Clona este repositorio en tu máquina local:
 
 ```bash
-git clone https://github.com/Edison1411/museeF.git
-cd museeF
+git clone https://github.com/Edison1411/museoF2024.git
+cd museoF2024
 ```
 
 ### 3. Configurar la base de datos
@@ -28,22 +28,25 @@ cd museeF
 
 - Asegúrate de tener Prisma instalado globalmente:
 
-  ```bash
-  npm install -g prisma
-  ```
+```bash
+npm install -g prisma
+```
 
 - Configura tu archivo `.env` con la URL de la base de datos de Supabase:
 
-  ```plaintext
-  DATABASE_URL=postgresql://usuario:contraseña@host:puerto/base_de_datos
-  JWT_SECRET=tu_secreto_jwt
-  ```
+```bash
+DATABASE_URL=""
+JWT_SECRET=""
+NEXT_PUBLIC_SUPABASE_URL=""
+NEXT_PUBLIC_SUPABASE_ANON_KEY=""
+NEXT_PUBLIC_API_URL=
+```
 
 - Ejecuta las migraciones de Prisma para configurar la base de datos:
 
-  ```bash
-  npx prisma migrate dev --name init
-  ```
+```bash
+npx prisma migrate dev --name init
+```
 
 ### 4. Instalar las dependencias
 
@@ -80,7 +83,7 @@ npm run dev
 
 Visita [http://localhost:3000/login](http://localhost:3000/login) para iniciar sesión.
 
-Si ingresas incorrectamente varias veces, verás el sistema de rate limiting en acción. El rate limiter bloquea el acceso si intentas ingresar mal las credenciales muchas veces en un corto período de tiempo. Tras varios intentos fallidos, deberás esperar 10 segundos antes de volver a intentar. Si intentas ingresar continuamente de forma incorrecta, la cuenta quedará bloqueada temporalmente sin importar si se ingresan las credenciales correctas.
+Si ingresas incorrectamente varias veces, verás el sistema de rate limiting en acción. El rate limiter bloquea el acceso si intentas ingresar mal las credenciales muchas veces en un corto período de tiempo. Tras varios intentos fallidos, deberás esperar 10 segundos antes de volver a intentar. Si intentas ingresar continuamente de forma incorrecta, la cuenta quedará bloqueada temporalmente sin importar si se ingresan las credenciales correctas. Tambien se integro el acceso el acceso por roles (rbac) junto con restricciones por acceso (abac). Para configuarar esto se puede hacer directamente en el `admin.js`
 
 ### 7. Crear y visualizar un artículo
 
